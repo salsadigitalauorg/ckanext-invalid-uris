@@ -34,17 +34,24 @@ def validate_package(pkg_dict, uri_fields):
             uri_to_validate.append(val)
 
         # Validate each uri.
-        log.debug('URIs to validate %s ' % pformat(uri_to_validate))
+        log.debug('URIs to validate field: %s value: %s ' % (pformat(f_name), pformat(uri_to_validate)))
         for uri in uri_to_validate:
             uri_response = h.valid_uri(uri)
             _check_uri_and_update_table(uri_response, uri, f_name, entity_type, entity_id, parent_id)
 
     resources = pkg_dict.get('resources', [])
+    extras = pkg_dict.get('extras', [])
 
     # Validate package.
     for uri_field in uri_fields:
         field_name = uri_field.get('field_name')
         value = pkg_dict.get(field_name, None)
+        if value is not None:
+            validate(value, field_name, pkg_dict.get('id'), pkg_dict.get('type'), None)
+
+        # Validate package extra.
+        field_name = uri_field.get('field_name')
+        value = extras.get(field_name, None)
         if value is not None:
             validate(value, field_name, pkg_dict.get('id'), pkg_dict.get('type'), None)
 

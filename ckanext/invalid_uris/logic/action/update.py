@@ -1,6 +1,5 @@
 import logging
 
-from datetime import datetime
 from ckanext.invalid_uris.model import InvalidUri
 from pprint import pformat
 

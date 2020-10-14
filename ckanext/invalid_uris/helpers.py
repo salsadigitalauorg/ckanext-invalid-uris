@@ -2,7 +2,6 @@ import requests
 import ckan.plugins.toolkit as toolkit
 import logging
 
-from ckanext.invalid_uris.validator import validate_package, validate_vocabulary_service
 from pprint import pformat
 
 get_action = toolkit.get_action
@@ -29,10 +28,3 @@ def valid_uri(uri):
         }
 
     return response
-
-
-def test():
-    # Load package
-    pkg_dict = get_action('get_vocabulary_service')({}, 'classification')
-
-    validate_vocabulary_service(pkg_dict)

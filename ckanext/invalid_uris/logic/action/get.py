@@ -1,6 +1,5 @@
 import logging
 
-from datetime import datetime
 from ckanext.invalid_uris.model import InvalidUri
 from ckanext.scheming.helpers import scheming_dataset_schemas
 from pprint import pformat
@@ -13,14 +12,14 @@ def schema_uri_fields(context, config):
     Get all fields that implement specific validator.
     
     :param config:
-        Example value {'packages': ['dataset', 'dataservice'], 'validator': 'qdes_uri_validator'}
+        Example value {'package_types': ['dataset', 'dataservice'], 'validator': 'qdes_uri_validator'}
     """
     uri_fields = []
     package_schema = scheming_dataset_schemas()
 
     for package in package_schema:
         package_fields = []
-        if package in config.get('packages'):
+        if package in config.get('package_types'):
             package_fields = package_schema[package].get('dataset_fields') + package_schema[package].get(
                 'resource_fields')
 
