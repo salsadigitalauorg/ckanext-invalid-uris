@@ -43,25 +43,32 @@ def validate_package(pkg_dict, uri_fields):
     extras = pkg_dict.get('extras', [])
 
     # Validate package.
-    for uri_field in uri_fields:
-        field_name = uri_field.get('field_name')
+    log.debug('================================================')
+    log.debug('Validating package: %s (id: %s)' % (pkg_dict.get('title'), pkg_dict.get('id')))
+    log.debug('================================================')
+    for field_name in uri_fields:
         value = pkg_dict.get(field_name, None)
         if value is not None:
             validate(value, field_name, pkg_dict.get('id'), pkg_dict.get('type'), None)
 
         # Validate package extra.
-        field_name = uri_field.get('field_name')
         value = extras.get(field_name, None)
         if value is not None:
             validate(value, field_name, pkg_dict.get('id'), pkg_dict.get('type'), None)
 
     # Validate resources.
     for resource in resources:
-        for uri_field in uri_fields:
-            field_name = uri_field.get('field_name')
+        log.debug('================================================')
+        log.debug('Validating resource: %s (id: %s)' % (resource.get('name'), resource.get('id')))
+        log.debug('================================================')
+
+        for field_name in uri_fields:
             value = resource.get(field_name, None)
             if value is not None:
                 validate(value, field_name, resource.get('id'), 'resource', pkg_dict.get('id'))
+
+    log.debug('================================================')
+    log.debug(' ')
 
 
 def validate_vocabulary_service(vocab_dict):

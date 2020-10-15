@@ -25,6 +25,7 @@ def schema_uri_fields(context, config):
 
         for field in package_fields:
             if config.get('validator') in field.get('validators', '').split():
-                uri_fields.append(field)
+                if not field.get('field_name') in uri_fields:
+                    uri_fields.append(field.get('field_name'))
 
     return uri_fields
