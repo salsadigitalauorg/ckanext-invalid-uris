@@ -13,6 +13,9 @@ log = logging.getLogger(__name__)
 
 def uri_validation_background_job(type='created', package_types=['dataset', 'dataservice'],
                                   validator='qdes_uri_validator'):
+    u"""
+    Background job for uri validation.
+    """
     # Filter the packages that meet the date criteria.
     packages = []
     query = Session.query(Package)
