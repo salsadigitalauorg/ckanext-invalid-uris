@@ -21,7 +21,7 @@ Options:
                             
                             'all' => get all metadata
 
-  -p, --package_types TEXT  Optional. List of the package types, comma
+  -p, --package_types TEXT  Optional. List of the package types, space
                             separated, default: 'dataset dataservice'
 
   -v, --validator TEXT      Optional. The name of the uri validator, default:
