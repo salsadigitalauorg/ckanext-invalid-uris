@@ -22,4 +22,5 @@ def delete_invalid_uri(context, data):
 
         return True
     except Exception as e:
+        log.error(str(e))
         return False

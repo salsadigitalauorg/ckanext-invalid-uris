@@ -4,6 +4,8 @@ import json
 import logging
 
 from ckan.lib import helpers as core_helper
+from ckan.model import Session
+from ckanext.invalid_uris.model import InvalidUri
 from pprint import pformat
 
 get_action = toolkit.get_action
@@ -29,7 +31,6 @@ def validate_package(pkg_dict, uri_fields):
                     uri_to_validate.append(uri)
             except Exception as e:
                 log.error(str(e))
-            # pass
         else:
             uri_to_validate.append(val)
 
@@ -80,6 +81,67 @@ def validate_vocabulary_service(vocab_dict):
         uri = term.uri
         uri_response = h.valid_uri(uri)
         _check_uri_and_update_table(uri_response, uri, 'uri', 'vocabulary_service_term', term.id, vocab_dict.id)
+
+
+def is_value_exist(id, entity):
+    u"""
+    Return True if the value is still in the entity.
+    In some case, user maybe delete the invalid value on edit after the background job run,
+    that will leaving the invalid_uri data outdated, so here we will delete it as well.
+    """
+    uris = Session.query(InvalidUri).filter(InvalidUri.id == id).all()
+    invalid_uris = [uri.as_dict() for uri in uris]
+    remove = False
+
+    for uri in invalid_uris:
+        # Load entity.
+        if uri.get('entity_type') == 'vocabulary_service':
+            # @todo: add the check for this entity.
+            pass
+        elif uri.get('entity_type') == 'vocabulary_service_term':
+            # @todo: add the check for this entity.
+            pass
+        else:
+            # Load package.
+            pkg_dict = entity
+            resources = pkg_dict.get('resources', [])
+
+            # Get the value from the entity.
+            if uri.get('entity_type') == 'resource':
+                current_resource_entity = []
+                for resource in resources:
+                    if resource.get('id') == uri.get('entity_id'):
+                        current_resource_entity = resource
+
+                value = current_resource_entity.get(uri.get('field'))
+            else:
+                value = pkg_dict.get(uri.get('field'))
+
+            # If the value is empty, let's remove it from invalid_uri table.
+            if not value:
+                remove = True
+
+            # Check if the entity value same as invalid uri on table.
+            if not core_helper.is_url(value):
+                try:
+                    uris_value = json.loads(value)
+                    if not uri.get('uri') in uris_value:
+                        remove = True
+                except Exception as e:
+                    log.error(str(e))
+            else:
+                if not uri.get('uri') == value:
+                    remove = True
+
+        if remove:
+            get_action('delete_invalid_uri')({}, {
+                'uri': uri.get('uri'),
+                'field': uri.get('field'),
+                'entity_type': uri.get('entity_type')
+            })
+            return False
+
+    return True
 
 
 def _check_uri_and_update_table(uri_response, uri, f_name, entity_type, entity_id, parent_id):
