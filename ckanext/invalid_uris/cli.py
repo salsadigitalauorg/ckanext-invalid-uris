@@ -31,7 +31,7 @@ def register_uri_validation_job(type='created', package_types='dataset dataservi
     u"""
     Enqueue the url validation to the background job.
     """
-    log.debug('Adding job to background queue:')
+    log.debug('Adding URI validation job to background queue:')
     log.debug('type %s' % pformat(type))
     log.debug('package_types %s' % pformat(package_types.split()))
     log.debug('validator %s' % pformat(validator))

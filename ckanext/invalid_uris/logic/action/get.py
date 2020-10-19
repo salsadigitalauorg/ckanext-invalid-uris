@@ -15,12 +15,12 @@ def schema_uri_fields(context, config):
         Example value {'package_types': ['dataset', 'dataservice'], 'validator': 'qdes_uri_validator'}
     """
     uri_fields = []
-    package_schema = scheming_dataset_schemas()
+    schemas = scheming_dataset_schemas()
 
-    for package in package_schema:
+    for dataset_type in schemas:
         package_fields = []
-        if package in config.get('package_types'):
-            package_fields = package_schema[package].get('dataset_fields') + package_schema[package].get(
+        if dataset_type in config.get('package_types'):
+            package_fields = schemas[dataset_type].get('dataset_fields') + schemas[dataset_type].get(
                 'resource_fields')
 
         for field in package_fields:
