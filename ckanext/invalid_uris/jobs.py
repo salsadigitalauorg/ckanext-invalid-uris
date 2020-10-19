@@ -18,7 +18,7 @@ def uri_validation_background_job(type='created', package_types=['dataset', 'dat
     """
     # Filter the packages that meet the date criteria.
     packages = []
-    query = Session.query(Package)
+    query = Session.query(Package).filter(Package.state == 'active')
     start_time = datetime.now() - timedelta(hours=24)
     if type == 'created':
         packages = query.filter(Package.metadata_created >= start_time).all()

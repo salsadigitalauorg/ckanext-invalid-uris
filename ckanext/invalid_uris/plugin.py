@@ -25,7 +25,8 @@ class InvalidUrisPlugin(plugins.SingletonPlugin):
     # ITemplateHelpers
     def get_helpers(self):
         return {
-            'valid_uri': helpers.valid_uri
+            'valid_uri': helpers.valid_uri,
+            'extract_uri_from_field': helpers.extract_uri_from_field
         }
 
     # IActions

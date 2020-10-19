@@ -22,17 +22,7 @@ def validate_package(pkg_dict, uri_fields):
             return
 
         # Build uri to validate, some fields are list (multi value).
-        uri_to_validate = []
-
-        if not core_helper.is_url(val):
-            try:
-                uris = json.loads(val)
-                for uri in uris:
-                    uri_to_validate.append(uri)
-            except Exception as e:
-                log.error(str(e))
-        else:
-            uri_to_validate.append(val)
+        uri_to_validate = h.extract_uri_from_field(val)
 
         # Validate each uri.
         log.debug('URIs to validate field: %s value: %s ' % (pformat(f_name), pformat(uri_to_validate)))
@@ -87,18 +77,19 @@ def is_value_exist(id, entity):
     u"""
     Return True if the value is still in the entity.
     In some case, user maybe delete the invalid value on edit after the background job run,
-    that will leaving the invalid_uri data outdated, so here we will delete it as well.
+    that will leave the invalid_uri data outdated, so here we will delete it as well.
     """
     uris = Session.query(InvalidUri).filter(InvalidUri.id == id).all()
     invalid_uris = [uri.as_dict() for uri in uris]
     remove = False
 
     for uri in invalid_uris:
+        entity_type = uri.get('entity_type', None)
         # Load entity.
-        if uri.get('entity_type') == 'vocabulary_service':
+        if entity_type == 'vocabulary_service':
             # @todo: add the check for this entity.
             pass
-        elif uri.get('entity_type') == 'vocabulary_service_term':
+        elif entity_type == 'vocabulary_service_term':
             # @todo: add the check for this entity.
             pass
         else:
@@ -107,7 +98,7 @@ def is_value_exist(id, entity):
             resources = pkg_dict.get('resources', [])
 
             # Get the value from the entity.
-            if uri.get('entity_type') == 'resource':
+            if entity_type == 'resource':
                 current_resource_entity = []
                 for resource in resources:
                     if resource.get('id') == uri.get('entity_id'):
@@ -122,22 +113,14 @@ def is_value_exist(id, entity):
                 remove = True
 
             # Check if the entity value same as invalid uri on table.
-            if not core_helper.is_url(value):
-                try:
-                    uris_value = json.loads(value)
-                    if not uri.get('uri') in uris_value:
-                        remove = True
-                except Exception as e:
-                    log.error(str(e))
-            else:
-                if not uri.get('uri') == value:
-                    remove = True
+            if not uri.get('uri') in h.extract_uri_from_field(value):
+                remove = True
 
         if remove:
             get_action('delete_invalid_uri')({}, {
                 'uri': uri.get('uri'),
                 'field': uri.get('field'),
-                'entity_type': uri.get('entity_type')
+                'entity_type': entity_type
             })
             return False
 

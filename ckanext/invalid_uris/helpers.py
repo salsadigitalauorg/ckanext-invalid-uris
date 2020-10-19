@@ -2,6 +2,7 @@ import requests
 import ckan.plugins.toolkit as toolkit
 import logging
 
+from ckan.lib import helpers as core_helper
 from pprint import pformat
 
 get_action = toolkit.get_action
@@ -28,3 +29,18 @@ def valid_uri(uri):
         }
 
     return response
+
+def extract_uri_from_field(value):
+    u"""
+    Extract uris from single/multi value field.
+    """
+    extracted_uris = []
+    if not core_helper.is_url(value):
+        try:
+            extracted_uris = json.loads(val)
+        except Exception as e:
+            return extracted_uris
+    else:
+        extracted_uris.append(value)
+
+    return extracted_uris
