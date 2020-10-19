@@ -6,7 +6,7 @@ from pprint import pformat
 log = logging.getLogger(__name__)
 
 
-def delete_invalid_uri(context, data):
+def invalid_uri(context, data):
     u"""
     Delete the invalid uri from table, can be filtered by uri, field name, and entity type.
 

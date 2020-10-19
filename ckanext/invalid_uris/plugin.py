@@ -3,7 +3,7 @@ import ckan.plugins.toolkit as toolkit
 
 from ckanext.invalid_uris.cli import get_commands
 from ckanext.invalid_uris import helpers
-from ckanext.invalid_uris.logic.action import create, update, get
+from ckanext.invalid_uris.logic.action import create, delete, get
 
 
 class InvalidUrisPlugin(plugins.SingletonPlugin):
@@ -32,6 +32,6 @@ class InvalidUrisPlugin(plugins.SingletonPlugin):
     def get_actions(self):
         return {
             'create_invalid_uri': create.invalid_uri,
-            'delete_invalid_uri': update.delete_invalid_uri,
+            'delete_invalid_uri': delete.invalid_uri,
             'get_schema_uri_fields': get.schema_uri_fields
         }
