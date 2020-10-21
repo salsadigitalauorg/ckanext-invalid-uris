@@ -43,7 +43,7 @@ def validate_package(pkg_dict, uri_fields):
             validate(value, field_name, pkg_dict.get('id'), pkg_dict.get('type'), None)
 
         # Validate package extra.
-        value = extras.get(field_name, None)
+        value = next((extra.get('value', None) for extra in extras if extra.get('key', None) == field_name), None)
         if value is not None:
             validate(value, field_name, pkg_dict.get('id'), pkg_dict.get('type'), None)
 
