@@ -1,4 +1,5 @@
 import logging
+import ckan.plugins.toolkit as toolkit
 
 from ckanext.invalid_uris.model import InvalidUri
 from ckanext.scheming.helpers import scheming_dataset_schemas
@@ -10,7 +11,7 @@ log = logging.getLogger(__name__)
 def schema_uri_fields(context, config):
     u"""
     Get all fields that implement specific validator.
-    
+
     :param config:
         Example value {'package_types': ['dataset', 'dataservice'], 'validator': 'qdes_uri_validator'}
     """
@@ -29,3 +30,16 @@ def schema_uri_fields(context, config):
                     uri_fields.append(field.get('field_name'))
 
     return uri_fields
+
+
+@toolkit.side_effect_free
+def invalid_uris(context, data_dict):
+    u"""
+    Get Invalid URI's
+
+    :param data_dict: has the following keys:
+        Example value {'uri': 'http://example.com', 'field': 'uri', 'entity_id': dataset_id, 'parant_entity_id':'')
+    """
+
+    # TODO: Who should have access to this action? toolkit.check_access(?)
+    return [invalid_uri.as_dict() for invalid_uri in InvalidUri.filter(data_dict)]

@@ -47,7 +47,7 @@ class InvalidUri(DomainObject):
     @classmethod
     def filter(cls, data):
         """
-        Returns if there is a matching uri/field name/entity type.
+        Returns if there is a matching uri/field name/entity type/entity id/parent entity id.
         """
         query = meta.Session.query(cls)
 
@@ -59,6 +59,12 @@ class InvalidUri(DomainObject):
 
         if data.get('entity_type'):
             query = query.filter(cls.entity_type == data.get('entity_type'))
+
+        if data.get('entity_id'):
+            query = query.filter(cls.entity_id == data.get('entity_id'))
+
+        if data.get('parent_entity_id'):
+            query = query.filter(cls.parent_entity_id == data.get('parent_entity_id'))
 
         return query.all()
 

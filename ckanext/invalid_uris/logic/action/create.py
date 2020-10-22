@@ -14,23 +14,11 @@ def invalid_uri(context, data):
     session = context['session']
     uri = data.get('uri', '')
 
-    current_data = InvalidUri.filter({
-        'uri': uri,
-        'field': data.get('field', ''),
-        'entity_type': data.get('entity_type', '')
-    })
+    current_data = InvalidUri.filter(data)
 
     if len(current_data) == 0:
         # If uri is not exist, then create it.
-        invalid_uri_data = InvalidUri(
-            entity_type=data.get('entity_type', ''),
-            entity_id=data.get('entity_id', ''),
-            parent_entity_id=data.get('parent_entity_id', ''),
-            field=data.get('field', ''),
-            uri=uri,
-            status_code=data.get('status_code', ''),
-            reason=data.get('reason', '')
-        )
+        invalid_uri_data = InvalidUri(**data)
         session.add(invalid_uri_data)
         session.commit()
     else:

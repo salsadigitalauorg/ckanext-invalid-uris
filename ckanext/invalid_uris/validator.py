@@ -24,6 +24,9 @@ def validate_package(pkg_dict, uri_fields):
         # Build uri to validate, some fields are list (multi value).
         uri_to_validate = h.extract_uri_from_field(val)
 
+        # Delete URI's that do not exist any more for this field
+        _remove_invalid_uri_orphans(f_name, entity_id, parent_id, uri_to_validate)
+
         # Validate each uri.
         log.debug('URIs to validate field: %s value: %s ' % (pformat(f_name), pformat(uri_to_validate)))
         for uri in uri_to_validate:
@@ -73,71 +76,19 @@ def validate_vocabulary_service(vocab_dict):
         _check_uri_and_update_table(uri_response, uri, 'uri', 'vocabulary_service_term', term.id, vocab_dict.id)
 
 
-def is_value_exist(id, entity):
-    u"""
-    Return True if the value is still in the entity.
-    In some case, user maybe delete the invalid value on edit after the background job run,
-    that will leave the invalid_uri data outdated, so here we will delete it as well.
-    """
-    uris = Session.query(InvalidUri).filter(InvalidUri.id == id).all()
-    invalid_uris = [uri.as_dict() for uri in uris]
-    remove = False
-
-    for uri in invalid_uris:
-        entity_type = uri.get('entity_type', None)
-        # Load entity.
-        if entity_type == 'vocabulary_service':
-            # @todo: add the check for this entity.
-            pass
-        elif entity_type == 'vocabulary_service_term':
-            # @todo: add the check for this entity.
-            pass
-        else:
-            # Load package.
-            pkg_dict = entity
-            resources = pkg_dict.get('resources', [])
-
-            # Get the value from the entity.
-            if entity_type == 'resource':
-                current_resource_entity = []
-                for resource in resources:
-                    if resource.get('id') == uri.get('entity_id'):
-                        current_resource_entity = resource
-
-                value = current_resource_entity.get(uri.get('field'))
-            else:
-                value = pkg_dict.get(uri.get('field'))
-
-            # If the value is empty, let's remove it from invalid_uri table.
-            if not value:
-                remove = True
-
-            # Check if the entity value same as invalid uri on table.
-            if not uri.get('uri') in h.extract_uri_from_field(value):
-                remove = True
-
-        if remove:
-            get_action('delete_invalid_uri')({}, {
-                'uri': uri.get('uri'),
-                'field': uri.get('field'),
-                'entity_type': entity_type
-            })
-            return False
-
-    return True
-
-
 def _check_uri_and_update_table(uri_response, uri, f_name, entity_type, entity_id, parent_id):
     if uri_response['valid']:
         # Remove it from invalid_uri table.
         result = get_action('delete_invalid_uri')({}, {
             'uri': uri,
             'field': f_name,
-            'entity_type': entity_type
+            'entity_type': entity_type,
+            'entity_id': entity_id,
+            'parent_entity_id': parent_id
         })
 
         if result:
-            log.debug('URI %s is valid' % pformat(uri))
+            log.debug('URI %s is valid and successfully removed from database' % pformat(uri))
         else:
             log.error('URI %s for %s (%s) is valid, but system can\'t remove it from database.' % (
                 pformat(uri), pformat(entity_type), pformat(f_name)))
@@ -153,3 +104,16 @@ def _check_uri_and_update_table(uri_response, uri, f_name, entity_type, entity_i
             'reason': uri_response['reason']
         })
         log.error('URI %s is NOT valid %s' % (pformat(uri), pformat(uri_response)))
+
+
+def _remove_invalid_uri_orphans(f_name, entity_id, parent_id, uri_to_validate):
+    current_field_invalid_uris = get_action('get_invalid_uris')({}, {'field': f_name, 'entity_id': entity_id, 'parent_entity_id': parent_id})
+    for invalid_uri in [invalid_uri for invalid_uri in current_field_invalid_uris if invalid_uri.get('uri', None) not in uri_to_validate]:
+        result = get_action('delete_invalid_uri')({}, invalid_uri)
+
+        if result:
+            log.debug('Removed orphan URI {0} {1} {2} successfully'.format(
+                invalid_uri.get('uri', None), parent_id or entity_id, f_name))
+        else:
+            log.error('Failed to remove orphan {0} {1} {2} successfully'.format(
+                invalid_uri.get('uri', None), parent_id or entity_id, f_name))

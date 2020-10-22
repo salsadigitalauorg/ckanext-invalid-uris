@@ -34,5 +34,6 @@ class InvalidUrisPlugin(plugins.SingletonPlugin):
         return {
             'create_invalid_uri': create.invalid_uri,
             'delete_invalid_uri': delete.invalid_uri,
-            'get_schema_uri_fields': get.schema_uri_fields
+            'get_schema_uri_fields': get.schema_uri_fields,
+            'get_invalid_uris': get.invalid_uris
         }
