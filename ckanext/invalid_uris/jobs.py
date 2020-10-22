@@ -1,7 +1,5 @@
 import logging
 import ckan.plugins.toolkit as toolkit
-import ckan.model as model
-import ckan.lib.dictization.model_dictize as model_dictize
 
 from datetime import datetime, timedelta
 from ckan.model import Session
@@ -34,6 +32,5 @@ def uri_validation_background_job(type='created', package_types=['dataset', 'dat
         {}, {'package_types': package_types, 'validator': validator}
     )
 
-    context = {'model': model}
     for package in packages:
-        validate_package(model_dictize.package_dictize(package, context), uri_fields)
+        validate_package(package.as_dict(), uri_fields)
