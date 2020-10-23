@@ -32,7 +32,6 @@ def schema_uri_fields(context, config):
     return uri_fields
 
 
-@toolkit.side_effect_free
 def invalid_uris(context, data_dict):
     u"""
     Get Invalid URI's
