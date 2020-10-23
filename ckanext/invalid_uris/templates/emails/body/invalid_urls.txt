@@ -1,0 +1,4 @@
+Hi {{recipient_name}},
+
+Here is a list of datasets that need to be reviewed for invalid URI's:
+{{ dataset_urls|join('\r\n') }}

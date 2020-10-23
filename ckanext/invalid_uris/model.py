@@ -60,6 +60,10 @@ class InvalidUri(DomainObject):
         if data.get('entity_type'):
             query = query.filter(cls.entity_type == data.get('entity_type'))
 
+        if data.get('entity_types'):
+            if isinstance(data.get('entity_types'), list):
+                query = query.filter(cls.entity_type.in_(data.get('entity_types')))
+
         if data.get('entity_id'):
             query = query.filter(cls.entity_id == data.get('entity_id'))
 
