@@ -19,12 +19,14 @@ def schema_uri_fields(context, config):
     schemas = scheming_dataset_schemas()
 
     for dataset_type in schemas:
-        package_fields = []
+        schema_fields = []
         if dataset_type in config.get('package_types'):
-            package_fields = schemas[dataset_type].get('dataset_fields') + schemas[dataset_type].get(
-                'resource_fields')
+            dataset_fields = schemas[dataset_type].get('dataset_fields')
+            resource_fields = schemas[dataset_type].get('resource_fields', None)
 
-        for field in package_fields:
+            schema_fields = dataset_fields + resource_fields if resource_fields else dataset_fields
+
+        for field in schema_fields:
             if config.get('validator') in field.get('validators', '').split():
                 if not field.get('field_name') in uri_fields:
                     uri_fields.append(field.get('field_name'))
