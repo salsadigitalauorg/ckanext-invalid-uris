@@ -47,26 +47,21 @@ def process_invalid_uris(entity_types):
         contact_point = dataset_dict.get('contact_point', None)
         datasets = contact_points.get(contact_point, [])
         # Only add dataset if it does not already exist in datasets list
-        dataset = {'dataset_name': dataset_dict.get('name'), 'dataset_type': dataset_dict.get('type')}
+        dataset = dataset_dict.get('title')
         datasets.append(dataset) if dataset not in datasets else datasets
         contact_points[contact_point] = datasets
 
-    for contact_point_url in contact_points:
-        log.debug('contact_point_url: {}'.format(contact_point_url))
-        dataset_urls = []
-        for dataset in contact_points[contact_point_url]:
-            dataset_url = toolkit.url_for('{}.read'.format(dataset.get('dataset_type', None)), id=dataset.get('dataset_name', None), _external=True)
-            log.debug('dataset_url {0} for dataset type {1} and name {2}'.format(dataset_url, dataset.get('dataset_type', None), dataset.get('dataset_name', None)))
-            if dataset_url:
-                dataset_urls.append(dataset_url)
-
-        # Only email contact point if there are dataset URL
-        if len(dataset_urls) > 0:
-            contact_point_data = helpers.get_contact_point_data(contact_point_url)
-            recipient_name = contact_point_data.get('Name', '')
-            # TODO: Uncomment line below once story has been implemented https://it-partners.atlassian.net/browse/DDCI-41
-            # recipient_email = contact_point_data.get('Email', '')
-            recipient_email = 'mark.calvert@salsadigital.com.au'
-            subject = toolkit.render('emails/subject/invalid_urls.txt')
-            body = toolkit.render('emails/body/invalid_urls.txt', {'recipient_name': recipient_name, 'dataset_urls': dataset_urls})
-            toolkit.enqueue_job(toolkit.mail_recipient, [recipient_name, recipient_email, subject, body])
+    # TODO: Once this story is completed, get the blueprint route https://it-partners.atlassian.net/browse/DDCI-61
+    invalid_uri_audit_report = toolkit.url_for('dashboard.index', qualified=True)
+    for contact_point in contact_points:
+        datasets = contact_points[contact_point]
+        # Only email contact point if there are datasets
+        if len(datasets) > 0:
+            contact_point_data = get_action('get_secure_vocabulary_record')(context, {'vocabulary_name': 'point-of-contact', 'query': contact_point})
+            if contact_point_data:
+                recipient_name = contact_point_data.get('Name', '')
+                recipient_email = contact_point_data.get('Email', '')
+                subject = toolkit.render('emails/subject/invalid_urls.txt')
+                body = toolkit.render('emails/body/invalid_urls.txt', {'recipient_name': recipient_name, 'invalid_uri_audit_report': invalid_uri_audit_report, 'datasets': datasets})
+                body_html = toolkit.render('emails/body/invalid_urls.html', {'recipient_name': recipient_name, 'invalid_uri_audit_report': invalid_uri_audit_report, 'datasets': datasets})
+                toolkit.enqueue_job(toolkit.mail_recipient, [recipient_name, recipient_email, subject, body, body_html])
