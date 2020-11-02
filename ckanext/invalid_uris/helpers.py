@@ -47,39 +47,3 @@ def extract_uri_from_field(value):
         extracted_uris.append(value)
 
     return extracted_uris
-
-
-def get_contact_point_data(contact_point_url):
-
-    # TODO: Once this story has been implemented https://it-partners.atlassian.net/browse/DDCI-41 use the action to retrieve contact point data
-    # data_dict = get_action('')({}, {'url':contact_point_url})
-    point_of_contacts = [
-        {
-            'Name': 'Scott Lutwyche',
-            'Functional Postition': 'Solutions Architect',
-            'Email': 'scott.lutwyche@des.qld.gov.au',
-            'Url': 'http://linked.data.gov.au/def/iso19115-1/RoleCode/author'
-        },
-        {
-            'Name': 'Viraj Ubayasiri',
-            'Functional Postition': 'Senior Business Analyst',
-            'Email': 'viraj.ubayasiri@des.qld.gov.au',
-            'Url': 'http://linked.data.gov.au/def/iso19115-1/RoleCode/coAuthor'
-        },
-        {
-            'Name': 'Kelly Bryant',
-            'Functional Postition': 'Senior Scientist (Modelling), Soil & Land Resources',
-            'Email': 'kelly.bryant@des.qld.gov.au',
-            'Url': 'http://linked.data.gov.au/def/iso19115-1/RoleCode/publisher'
-        },
-        {
-            'Name': 'Daniel Brough',
-            'Functional Postition': 'Science Leader, Science Information Services',
-            'Email': 'daniel.brough@des.qld.gov.auu',
-            'Url': 'http://linked.data.gov.au/def/iso19115-1/RoleCode/custodian'
-        }
-    ]
-
-    point_of_contact = next((point_of_contact for point_of_contact in point_of_contacts if point_of_contact.get('Url') == contact_point_url), None)
-    log.debug('point_of_contact: {}'.format(point_of_contact))
-    return point_of_contact
