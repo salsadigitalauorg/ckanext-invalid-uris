@@ -47,12 +47,13 @@ def process_invalid_uris(entity_types):
         contact_point = dataset_dict.get('contact_point', None)
         datasets = contact_points.get(contact_point, [])
         # Only add dataset if it does not already exist in datasets list
-        dataset = dataset_dict.get('title')
+        title = dataset_dict.get('title')
+        name = dataset_dict.get('name')
+        url = toolkit.url_for('{}.read'.format(dataset_dict.get('type', None)), id=name, _external=True)
+        dataset = {'title': title, 'url': url}
         datasets.append(dataset) if dataset not in datasets else datasets
         contact_points[contact_point] = datasets
 
-    # TODO: Once this story is completed, get the blueprint route https://it-partners.atlassian.net/browse/DDCI-61
-    invalid_uri_audit_report = toolkit.url_for('dashboard.index', qualified=True)
     for contact_point in contact_points:
         datasets = contact_points[contact_point]
         # Only email contact point if there are datasets
@@ -62,6 +63,6 @@ def process_invalid_uris(entity_types):
                 recipient_name = contact_point_data.get('Name', '')
                 recipient_email = contact_point_data.get('Email', '')
                 subject = toolkit.render('emails/subject/invalid_urls.txt')
-                body = toolkit.render('emails/body/invalid_urls.txt', {'recipient_name': recipient_name, 'invalid_uri_audit_report': invalid_uri_audit_report, 'datasets': datasets})
-                body_html = toolkit.render('emails/body/invalid_urls.html', {'recipient_name': recipient_name, 'invalid_uri_audit_report': invalid_uri_audit_report, 'datasets': datasets})
+                body = toolkit.render('emails/body/invalid_urls.txt', {'recipient_name': recipient_name, 'datasets': datasets})
+                body_html = toolkit.render('emails/body/invalid_urls.html', {'recipient_name': recipient_name, 'datasets': datasets})
                 toolkit.enqueue_job(toolkit.mail_recipient, [recipient_name, recipient_email, subject, body, body_html])

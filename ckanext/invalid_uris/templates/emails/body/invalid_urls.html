@@ -4,11 +4,9 @@
 
 <p>Please review the affected datasets/data services and update the invalid URL/URIs<p></p>
 
-<p>Please {{ h.link_to(_('click here'), invalid_uri_audit_report) }} to find a summary of the issues.</p>
-
 </p>The affected datasets/data services are:</p>
 <ul>
     {% for dataset in datasets %}
-        <li>dataset</li>
+        <li><a href="{{dataset.get('url')}}">{{dataset.title}}</a></li>
     {% endfor %}
 </ul>

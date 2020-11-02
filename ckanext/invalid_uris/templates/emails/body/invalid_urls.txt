@@ -4,7 +4,7 @@ The following datasets/data services for which you are the Point of Contact have
 
 Please review the affected datasets/data services and update the invalid URL/URIs
 
-Please click here {{ invalid_uri_audit_report }} to find a summary of the issues.
-
 The affected datasets/data services are:
-{{ datasets|join('\r\n') }}
+{% for dataset in datasets %}
+- {{dataset.get('title')}} : {{dataset.get('url')}}
+{% endfor %}
