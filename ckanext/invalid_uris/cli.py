@@ -1,11 +1,11 @@
 import ckan.plugins.toolkit as toolkit
 import click
 import logging
+import ckanext.invalid_uris.jobs as jobs
 
 from datetime import datetime
 from ckanapi import LocalCKAN, ValidationError
 from ckanext.invalid_uris import model
-from ckanext.invalid_uris.jobs import uri_validation_background_job
 from pprint import pformat
 
 log = logging.getLogger(__name__)
@@ -35,7 +35,7 @@ def register_uri_validation_job(type='created', package_types='dataset dataservi
     log.debug('type %s' % pformat(type))
     log.debug('package_types %s' % pformat(package_types.split()))
     log.debug('validator %s' % pformat(validator))
-    toolkit.enqueue_job(uri_validation_background_job, [type, package_types.split(), validator])
+    toolkit.enqueue_job(jobs.uri_validation_background_job, [type, package_types.split(), validator])
 
 
 @click.command(u"invalid-uris-init-db")
@@ -53,5 +53,25 @@ def init_db_cmd():
     click.secho(u"Table invalid_uri is setup", fg=u"green")
 
 
+@click.command(u"process-invalid-uris")
+@click.option(u"-e", u"--entity_types", default=u"dataset dataservice",
+              help=u"Optional. List of the entity types, separated by a space, default: 'dataset dataservice'")
+@click.pass_context
+def process_invalid_uris(ctx, entity_types='dataset dataservice'):
+    u"""
+    Process invalid URI's and email point of contact with a list of datasets with invalid URI's in the metadata
+    """
+    click.secho(u"Begin processing invalid URI's for entity types {}".format(entity_types.split()), fg=u"green")
+
+    try:
+        flask_app = ctx.meta['flask_app']
+        with flask_app.test_request_context():
+            jobs.process_invalid_uris(entity_types.split())
+    except Exception as e:
+        log.error(e)
+
+    click.secho(u"Finished processing invalid URI's", fg=u"green")
+
+
 def get_commands():
-    return [init_db_cmd, register_uri_validation_job]
+    return [init_db_cmd, register_uri_validation_job, process_invalid_uris]
