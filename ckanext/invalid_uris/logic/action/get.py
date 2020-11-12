@@ -3,6 +3,7 @@ import ckan.plugins.toolkit as toolkit
 
 from ckanext.invalid_uris.model import InvalidUri
 from ckanext.scheming.helpers import scheming_dataset_schemas
+from ckanext.invalid_uris import jobs
 from pprint import pformat
 
 log = logging.getLogger(__name__)
@@ -44,3 +45,15 @@ def invalid_uris(context, data_dict):
 
     # TODO: Who should have access to this action? toolkit.check_access(?)
     return [invalid_uri.as_dict() for invalid_uri in InvalidUri.filter(data_dict)]
+
+
+@toolkit.side_effect_free
+def process_invalid_uris(context, data_dict):
+    toolkit.check_access('sysadmin', context)
+    entity_types = data_dict.get('entity_types', 'dataset dataservice resource')
+    try:
+        jobs.process_invalid_uris(entity_types.split())
+        return 'Successfully submitted process_invalid_uris job'
+    except Exception as e:
+        log.error(e)
+        return 'Failed to process_invalid_uris job: {}'.format(e)
