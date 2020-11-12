@@ -54,10 +54,10 @@ def init_db_cmd():
 
 
 @click.command(u"process-invalid-uris")
-@click.option(u"-e", u"--entity_types", default=u"dataset dataservice",
-              help=u"Optional. List of the entity types, separated by a space, default: 'dataset dataservice'")
+@click.option(u"-e", u"--entity_types", default=u"dataset dataservice resource",
+              help=u"Optional. List of the entity types, separated by a space, default: 'dataset dataservice resource'")
 @click.pass_context
-def process_invalid_uris(ctx, entity_types='dataset dataservice'):
+def process_invalid_uris(ctx, entity_types='dataset dataservice resource'):
     u"""
     Process invalid URI's and email point of contact with a list of datasets with invalid URI's in the metadata
     """
