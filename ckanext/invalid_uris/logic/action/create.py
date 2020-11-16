@@ -38,7 +38,6 @@ def invalid_uri(context, data):
     return True
 
 
-@toolkit.side_effect_free
 def process_invalid_uris_job(context, data_dict):
     toolkit.check_access('sysadmin', context)
     entity_types = data_dict.get('entity_types', 'dataset dataservice resource')
