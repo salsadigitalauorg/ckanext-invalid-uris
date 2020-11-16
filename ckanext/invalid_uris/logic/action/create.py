@@ -1,7 +1,9 @@
 import logging
+import ckan.plugins.toolkit as toolkit
 
 from datetime import datetime
 from ckanext.invalid_uris.model import InvalidUri
+from ckanext.invalid_uris import jobs
 from pprint import pformat
 
 log = logging.getLogger(__name__)
@@ -34,3 +36,15 @@ def invalid_uri(context, data):
             invalid_uri_data.save()
 
     return True
+
+
+@toolkit.side_effect_free
+def process_invalid_uris_job(context, data_dict):
+    toolkit.check_access('sysadmin', context)
+    entity_types = data_dict.get('entity_types', 'dataset dataservice resource')
+    try:
+        jobs.process_invalid_uris(entity_types.split())
+        return 'Successfully submitted process_invalid_uris job'
+    except Exception as e:
+        log.error(e)
+        return 'Failed to process_invalid_uris job: {}'.format(e)
