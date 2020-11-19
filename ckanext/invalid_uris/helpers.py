@@ -16,7 +16,7 @@ def valid_uri(uri):
     """
     r = None
     try:
-        r = requests.options(uri)
+        r = requests.get(uri)
         response = {
             'valid': False if r.status_code != 200 else True,
             'status_code': r.status_code,
