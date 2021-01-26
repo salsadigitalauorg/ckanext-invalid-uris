@@ -1,1 +1,1 @@
-Ecosciences.Qld Data Catalogue - Validation Errors
+Ecosciences.QLD Data Catalogue - Invalid or internal URLs
