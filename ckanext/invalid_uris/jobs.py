@@ -43,16 +43,20 @@ def process_invalid_uris(entity_types):
     invalid_uris = get_action('get_invalid_uris')(context, {'entity_types': entity_types})
     contact_points = {}
     for invalid_uri in invalid_uris:
-        dataset_dict = get_action('package_show')(context, {'id': invalid_uri.get('parent_entity_id', None) or invalid_uri.get('entity_id', None)})
-        contact_point = dataset_dict.get('contact_point', None)
-        datasets = contact_points.get(contact_point, [])
-        # Only add dataset if it does not already exist in datasets list
-        title = dataset_dict.get('title')
-        name = dataset_dict.get('name')
-        url = toolkit.url_for('{}.read'.format(dataset_dict.get('type', None)), id=name, _external=True)
-        dataset = {'title': title, 'url': url}
-        datasets.append(dataset) if dataset not in datasets else datasets
-        contact_points[contact_point] = datasets
+        try:
+            context.pop('__auth_audit', None)
+            dataset_dict = get_action('package_show')(context, {'id': invalid_uri.get('parent_entity_id', None) or invalid_uri.get('entity_id', None)})
+            contact_point = dataset_dict.get('contact_point', None)
+            datasets = contact_points.get(contact_point, [])
+            # Only add dataset if it does not already exist in datasets list
+            title = dataset_dict.get('title')
+            name = dataset_dict.get('name')
+            url = toolkit.url_for('{}.read'.format(dataset_dict.get('type', None)), id=name, _external=True)
+            dataset = {'title': title, 'url': url}
+            datasets.append(dataset) if dataset not in datasets else datasets
+            contact_points[contact_point] = datasets
+        except Exception as e:
+            log.error(str(e))
 
     for contact_point in contact_points:
         datasets = contact_points[contact_point]
