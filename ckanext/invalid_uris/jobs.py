@@ -69,4 +69,15 @@ def process_invalid_uris(entity_types):
                 subject = toolkit.render('emails/subject/invalid_urls.txt')
                 body = toolkit.render('emails/body/invalid_urls.txt', {'recipient_name': recipient_name, 'datasets': datasets})
                 body_html = toolkit.render('emails/body/invalid_urls.html', {'recipient_name': recipient_name, 'datasets': datasets})
-                toolkit.enqueue_job(toolkit.mail_recipient, [recipient_name, recipient_email, subject, body, body_html])
+
+                # Improvements for job worker visibility when troubleshooting via logs
+                job_title = 'Invalid URI email notification to {}'.format(recipient_email)
+                log.debug('Enqueuing job: "{}"'.format(job_title))
+
+                job = toolkit.enqueue_job(
+                    toolkit.mail_recipient,
+                    [recipient_name, recipient_email, subject, body, body_html],
+                    title=job_title
+                )
+
+                log.debug('Job enqueued: "{0}" (ID: {1})'.format(job_title, job.id))
