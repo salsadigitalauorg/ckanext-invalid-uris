@@ -72,6 +72,9 @@ def process_invalid_uris(entity_types):
                 body = toolkit.render('emails/body/invalid_urls.txt', {'recipient_name': recipient_name, 'datasets': datasets})
                 body_html = toolkit.render('emails/body/invalid_urls.html', {'recipient_name': recipient_name, 'datasets': datasets})
 
+                # Remove CRLF from email.
+                recipient_email = recipient_email.replace('\r\n', '').replace('\r', '').replace('\n', '').replace('^M', '')
+
                 # Improvements for job worker visibility when troubleshooting via logs
                 job_title = 'Invalid URI email notification to {}'.format(recipient_email)
                 log.debug('Enqueuing job: "{}"'.format(job_title))
