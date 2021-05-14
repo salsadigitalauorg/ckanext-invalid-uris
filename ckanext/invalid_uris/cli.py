@@ -35,7 +35,9 @@ def register_uri_validation_job(type='created', package_types='dataset dataservi
     log.debug('type %s' % pformat(type))
     log.debug('package_types %s' % pformat(package_types.split()))
     log.debug('validator %s' % pformat(validator))
-    toolkit.enqueue_job(jobs.uri_validation_background_job, [type, package_types.split(), validator])
+    # Improvements for job worker visibility when troubleshooting via logs
+    job_title = f'Adding URI validation job to background queue: type={type}, package_types={package_types}, validator={validator}'
+    toolkit.enqueue_job(jobs.uri_validation_background_job, [type, package_types.split(), validator], title=job_title)
 
 
 @click.command(u"invalid-uris-init-db")
