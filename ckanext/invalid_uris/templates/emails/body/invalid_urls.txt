@@ -1,0 +1,10 @@
+The Queensland Environmental Science Data (QESD) catalogue performs a series of automated checks on records in the system to maintain data quality.
+
+The following datasets/data services for which you are the Point of Contact have URL/URIs that could not be validated because they are either invalid or represent internal URL/URIs. These URL/URIs could be to other linked resources or online resources for your dataset/data service.
+
+Please review the affected datasets/data services and update any invalid URL/URIs.
+
+The affected datasets/data services are:
+{% for dataset in datasets %}
+- {{dataset.get('title')}} : {{dataset.get('url')}}
+{% endfor %}
