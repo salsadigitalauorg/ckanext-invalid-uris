@@ -1,19 +1,13 @@
 import ckan.plugins.toolkit as toolkit
 import click
-import logging
 import ckanext.invalid_uris.jobs as jobs
 
-from datetime import datetime
-from ckanapi import LocalCKAN, ValidationError
-from ckanext.invalid_uris import model
-from pprint import pformat
-
-log = logging.getLogger(__name__)
+from ckanext.invalid_uris import model, helpers
 
 
 @click.command(u"register-uri-validation-job")
-@click.option(u"-t", u"--type", default=u"created",
-              help=u"""Optional. Type of the job, default: 'created'.
+@click.option(u"-t", u"--type", required=True,
+              help=u"""Type of the job.
               
                 Possible values:  
                 
@@ -23,21 +17,17 @@ log = logging.getLogger(__name__)
                 
                 'all' => get all metadata
               """)
-@click.option(u"-p", u"--package_types", default=u"dataset dataservice",
-              help=u"Optional. List of the package types, comma separated, default: 'dataset dataservice'")
-@click.option(u"-v", u"--validator", default=u"qdes_uri_validator",
-              help=u"Optional. The name of the uri validator, default: 'qdes_uri_validator'")
-def register_uri_validation_job(type='created', package_types='dataset dataservice', validator='qdes_uri_validator'):
+@click.option(u"-p", u"--package_types", required=True,
+              help=u"List of the package types, separated by a space, eg 'dataset dataservice'")
+@click.option(u"-v", u"--validator", required=True,
+              help=u"The name of the uri validator, eg. 'qdes_uri_validator' or 'datant_uri_validator'")
+def register_uri_validation_job(type, package_types, validator):
     u"""
     Enqueue the url validation to the background job.
     """
-    log.debug('Adding URI validation job to background queue:')
-    log.debug('type %s' % pformat(type))
-    log.debug('package_types %s' % pformat(package_types.split()))
-    log.debug('validator %s' % pformat(validator))
     # Improvements for job worker visibility when troubleshooting via logs
     job_title = f'Adding URI validation job to background queue: type={type}, package_types={package_types}, validator={validator}'
-    toolkit.enqueue_job(jobs.uri_validation_background_job, [type, package_types.split(), validator], title=job_title)
+    toolkit.enqueue_job(jobs.uri_validation_background_job, [type, package_types.split(), validator], title=job_title, rq_kwargs={'timeout': 3600})
 
 
 @click.command(u"invalid-uris-init-db")
@@ -50,16 +40,16 @@ def init_db_cmd():
     try:
         model.invalid_uri_table.create()
     except Exception as e:
-        log.error(str(e))
+        click.secho(f"Failed initialising the database tables: {e}", fg=u"red")
 
     click.secho(u"Table invalid_uri is setup", fg=u"green")
 
 
 @click.command(u"process-invalid-uris")
-@click.option(u"-e", u"--entity_types", default=u"dataset dataservice resource",
-              help=u"Optional. List of the entity types, separated by a space, default: 'dataset dataservice resource'")
+@click.option(u"-e", u"--entity_types", required=True,
+              help=u"List of the entity types, separated by a space, eg: 'dataset dataservice resource' or 'dataset resource")
 @click.pass_context
-def process_invalid_uris(ctx, entity_types='dataset dataservice resource'):
+def process_invalid_uris(ctx, entity_types):
     u"""
     Process invalid URI's and email point of contact with a list of datasets with invalid URI's in the metadata
     """
@@ -70,10 +60,36 @@ def process_invalid_uris(ctx, entity_types='dataset dataservice resource'):
         with flask_app.test_request_context():
             jobs.process_invalid_uris(entity_types.split())
     except Exception as e:
-        log.error(e)
+        click.secho(f"Failed processing invalid URI's: {e}", fg=u"red")
 
     click.secho(u"Finished processing invalid URI's", fg=u"green")
 
 
+@click.command(u"validate-packages")
+@click.option(u"-i", u"--package_ids", required=True, 
+              help=u"Comma separated list of package_ids or invalid_uris to validate all current invalid_uri packages")
+@click.option(u"-p", u"--package_types", required=True,
+              help=u"List of the package types, separated by a space, eg 'dataset dataservice'")
+@click.option(u"-v", u"--validator", required=True,
+              help=u"The name of the uri validator, eg. 'qdes_uri_validator' or 'datant_uri_validator'")
+def validate_packages(package_ids, package_types, validator):
+    u"""
+    Validate a package
+    """
+    jobs.validate_packages_job(package_ids, package_types, validator)
+
+
+@click.command(u"validate-uri")
+@click.option('-u', '--uri', required=True, 
+              help='Check if the given uri is valid or not')
+def validate_uri(uri):
+    click.echo(f'Validating URI {uri}')
+    response = helpers.valid_uri(uri)
+    if response.get('valid'):
+        click.secho(f'Response success: {str(response)}', fg='green')
+    else:
+        click.secho(f'Response failed: {str(response)}', fg='red')
+
+
 def get_commands():
-    return [init_db_cmd, register_uri_validation_job, process_invalid_uris]
+    return [init_db_cmd, register_uri_validation_job, process_invalid_uris, validate_packages, validate_uri]
