@@ -38,12 +38,27 @@ def invalid_uri(context, data):
     return True
 
 
+@toolkit.side_effect_free
 def process_invalid_uris_job(context, data_dict):
     toolkit.check_access('sysadmin', context)
     entity_types = data_dict.get('entity_types', 'dataset dataservice resource')
     try:
         jobs.process_invalid_uris(entity_types.split())
         return 'Successfully submitted process_invalid_uris job'
+    except Exception as e:
+        log.error(e)
+        return 'Failed to process_invalid_uris job: {}'.format(e)
+
+
+@toolkit.side_effect_free
+def register_uri_validation_job(context, data_dict):
+    toolkit.check_access('sysadmin', context)
+    validation_type = data_dict.get('type', 'all')
+    package_types = data_dict.get('package_types', 'dataset').split()
+    validator = data_dict.get('validator', 'datant_uri_validator')
+    try:
+        toolkit.enqueue_job(jobs.uri_validation_background_job, [validation_type, package_types, validator])
+        return 'Successfully submitted uri_validation_background job'
     except Exception as e:
         log.error(e)
         return 'Failed to process_invalid_uris job: {}'.format(e)

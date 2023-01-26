@@ -17,6 +17,7 @@ def invalid_uri(context, data):
         invalid_uri_data = InvalidUri.filter(data)
 
         for invalid_uri in invalid_uri_data:
+            log.info(f'Deleting invalid uri {invalid_uri.uri} from entity {invalid_uri.entity_type} ({invalid_uri.entity_id})')
             invalid_uri.delete()
             invalid_uri.commit()
 
