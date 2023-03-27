@@ -63,7 +63,7 @@ class InvalidUrisPlugin(plugins.SingletonPlugin):
             endpoint = toolkit.get_endpoint() if toolkit.request and toolkit.request.endpoint else ('', '')
             path = toolkit.request.path if toolkit.request else ''
             resource = context.get('resource')
-            if (endpoint == ('resource', 'delete') or path.endswith('resource_delete')) and isinstance(resource, dict):
+            if (endpoint == ('dataset_resource', 'delete') or path.endswith('resource_delete')) and isinstance(resource, dict):
                 id = resource.get('id')
                 log.info(f'Resource deleted {id}, removing invalid uris')
                 get_action('delete_invalid_uri')(context, {"entity_id": id})
