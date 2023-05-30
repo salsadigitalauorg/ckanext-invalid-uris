@@ -66,7 +66,7 @@ def process_invalid_uris(entity_types):
                 if dataset_dict.get('state') == State.ACTIVE and resource_dict.get('state') == State.ACTIVE:
                     package_name = dataset_dict.get('name')
                     package_type = dataset_dict.get('type')
-                    url = toolkit.url_for('resource.read', id=package_name, resource_id=resource_id, package_type=package_type, _external=True)
+                    url = toolkit.url_for('dataset_resource.read', id=package_name, resource_id=resource_id, package_type=package_type, _external=True)
                     dataset = {'title': title, 'url': url}
 
             if dataset:
