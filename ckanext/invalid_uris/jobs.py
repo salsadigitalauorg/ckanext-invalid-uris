@@ -97,7 +97,7 @@ def process_invalid_uris(entity_types):
                     recipient_email = contact_point_data.get('Email') or contact_point_data.get('email')
 
             if not recipient_name and not recipient_email:
-                log.error(f'Recipient name and email is not set. recipient_name:{recipient_name} recipient_email:{recipient_email}')
+                log.error(f'Recipient name and email is not set for contact point: {contact_point}')
                 continue
 
             subject = toolkit.render('emails/subject/invalid_urls.txt')
