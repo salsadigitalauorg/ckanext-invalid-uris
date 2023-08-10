@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 requests.packages.urllib3.disable_warnings()
 
 
-def valid_uri(uri, retries=0):
+def valid_uri(uri, retries=0, method='head'):
     u"""
     Check if the given uri is valid or not.
     """
@@ -38,7 +38,8 @@ def valid_uri(uri, retries=0):
             headers = {
                 "User-Agent": user_agent
             }
-        response = requests.head(
+        response = requests.request(
+            method=method,
             url=uri,
             headers=headers,
             verify=verify_certificate,
@@ -46,11 +47,17 @@ def valid_uri(uri, retries=0):
             proxies=proxies,
             allow_redirects=True,
         )
-        result = {
-            'valid': response.ok,
-            'status_code': response.status_code,
-            'reason': response.reason
-        }
+        # If the head method is not allowed then try with get method.
+        if response is not None and response.status_code == 405 and method == 'head':
+            log.warning(f'Method {method} not allowed for uri {uri}')
+            result = valid_uri(uri, retries, 'get')
+        else:
+            result = {
+                'valid': response.ok,
+                'status_code': response.status_code,
+                'reason': response.reason,
+                'response': response
+            }
     except (requests.RequestException, requests.ConnectionError, requests.HTTPError) as e:
         log.error(f'Request exception: {e}')
         if retries <= retry_attempts:
@@ -62,13 +69,15 @@ def valid_uri(uri, retries=0):
             result = {
                 'valid': False,
                 'status_code': response.status_code if response is not None else '',
-                'reason': response.reason if response is not None else str(e)
+                'reason': response.reason if response is not None else str(e),
+                'response': response
             }
     except Exception as e:
         result = {
             'valid': False,
             'status_code': response.status_code if response is not None else '',
-            'reason': response.reason if response is not None else str(e)
+            'reason': response.reason if response is not None else str(e),
+            'response': response
         }
 
     return result
