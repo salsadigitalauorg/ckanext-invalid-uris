@@ -23,10 +23,12 @@ def valid_uri(uri, retries=0, method='head'):
     proxies = None
     headers = None
     proxy = config.get('ckanext.invalid_uris.proxy')
-    timeout = config.get('ckanext.invalid_uris.timeout', 10)
+    timeout = toolkit.asint(config.get('ckanext.invalid_uris.timeout', 10))
+    # Increase timeout for each retry attempt.
+    timeout = timeout * (retries+1)
     user_agent = config.get('ckanext.invalid_uris.user_agent')
-    verify_certificate = config.get('ckanext.invalid_uris.verify_certificate', True)
-    retry_attempts = config.get('ckanext.invalid_uris.retry_attempts', 3)
+    verify_certificate = toolkit.asbool(config.get('ckanext.invalid_uris.verify_certificate', True))
+    retry_attempts = toolkit.asint(config.get('ckanext.invalid_uris.retry_attempts', 3))
     
     try:
         if proxy:
@@ -60,9 +62,9 @@ def valid_uri(uri, retries=0, method='head'):
             }
     except (requests.RequestException, requests.ConnectionError, requests.HTTPError) as e:
         log.error(f'Request exception: {e}')
-        if retries <= retry_attempts:
-            log.warning(f'Retry attempt {retries} for uri {uri}')
+        if retries < retry_attempts:
             retries = retries+1
+            log.warning(f'Retry attempt {retries} for uri {uri}')
             time.sleep(retries)
             result = valid_uri(uri, retries)
         else:
