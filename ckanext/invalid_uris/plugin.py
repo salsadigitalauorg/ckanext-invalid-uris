@@ -49,28 +49,19 @@ class InvalidUrisPlugin(plugins.SingletonPlugin):
         }
 
     # IResourceController
-    def before_delete(self, context, resource, resources):
-        # Set resource in context so it can be used in the IResourceController `after_delete interface` below
+    def before_resource_delete(self, context, resource, resources):
         context['resource'] = resource
 
-    # IResourceController & IPackageController
-    def after_delete(self, context, pkg_dict_or_resources):
-        try:
-            # This interface can be called from either IResourceController & IPackageController
-            # Should be resolved in a future release https://github.com/ckan/ckan/pull/6501
-            # We need to find which interface is being called
-            # get_endpoint works fine from a UI request but from the API we need use the request.path because get_endpoint returns ('google_analytics', 'action')
-            endpoint = toolkit.get_endpoint() if toolkit.request and toolkit.request.endpoint else ('', '')
-            path = toolkit.request.path if toolkit.request else ''
-            resource = context.get('resource')
-            if (endpoint == ('dataset_resource', 'delete') or path.endswith('resource_delete')) and isinstance(resource, dict):
-                id = resource.get('id')
-                log.info(f'Resource deleted {id}, removing invalid uris')
-                get_action('delete_invalid_uri')(context, {"entity_id": id})
-            elif (endpoint == ('dataset', 'delete') or path.endswith('package_delete')) and isinstance(pkg_dict_or_resources, dict):
-                id = pkg_dict_or_resources.get("id")
-                log.info(f'Dataset deleted {id}, removing invalid uris')
-                get_action('delete_invalid_uri')(context, {"entity_id": id})
-                get_action('delete_invalid_uri')(context, {"parent_entity_id": id})
-        except Exception as ex:
-            log.error(ex)
+    def after_resource_delete(self, context, resources):
+        resource = context.get('resource')
+        if resource and isinstance(resource, dict):
+            resource_id = resource.get("id")
+            log.info(f'Resource deleted {resource_id}, removing invalid uris')
+            get_action('delete_invalid_uri')(context, {"entity_id": resource_id})
+
+    # IPackageController
+    def after_dataset_delete(self, context, pkg_dict):
+        id = pkg_dict.get("id")
+        log.info(f'Dataset deleted {id}, removing invalid uris')
+        get_action('delete_invalid_uri')(context, {"entity_id": id})
+        get_action('delete_invalid_uri')(context, {"parent_entity_id": id})
