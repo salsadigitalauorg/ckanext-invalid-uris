@@ -6,10 +6,19 @@ from ckanext.invalid_uris.cli import get_commands
 from ckanext.invalid_uris import helpers
 from ckanext.invalid_uris.logic.action import create, delete, get
 
+try:
+    config_declarations = toolkit.blanket.config_declarations
+except AttributeError:
+    # CKAN 2.9 does not have config_declarations.
+    # Remove when dropping support.
+    def config_declarations(cls):
+        return cls
+
 get_action = toolkit.get_action
 log = logging.getLogger(__name__)
 
 
+@config_declarations
 class InvalidUrisPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IClick)
