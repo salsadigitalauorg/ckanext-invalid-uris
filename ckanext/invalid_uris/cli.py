@@ -2,7 +2,7 @@ import ckan.plugins.toolkit as toolkit
 import click
 import ckanext.invalid_uris.jobs as jobs
 
-from ckanext.invalid_uris import model, helpers
+from ckanext.invalid_uris import helpers
 
 
 @click.command(u"register-uri-validation-job")
@@ -28,21 +28,6 @@ def register_uri_validation_job(type, package_types, validator):
     # Improvements for job worker visibility when troubleshooting via logs
     job_title = f'Adding URI validation job to background queue: type={type}, package_types={package_types}, validator={validator}'
     toolkit.enqueue_job(jobs.uri_validation_background_job, [type, package_types.split(), validator], title=job_title, rq_kwargs={'timeout': 3600})
-
-
-@click.command(u"invalid-uris-init-db")
-def init_db_cmd():
-    u"""
-    Initialise the database tables required for internal vocabulary services
-    """
-    click.secho(u"Initializing invalid_uri table", fg=u"green")
-
-    try:
-        model.invalid_uri_table.create()
-    except Exception as e:
-        click.secho(f"Failed initialising the database tables: {e}", fg=u"red")
-
-    click.secho(u"Table invalid_uri is setup", fg=u"green")
 
 
 @click.command(u"process-invalid-uris")
@@ -92,4 +77,4 @@ def validate_uri(uri):
 
 
 def get_commands():
-    return [init_db_cmd, register_uri_validation_job, process_invalid_uris, validate_packages, validate_uri]
+    return [register_uri_validation_job, process_invalid_uris, validate_packages, validate_uri]
