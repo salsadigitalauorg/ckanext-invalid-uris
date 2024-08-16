@@ -59,6 +59,7 @@ class InvalidUrisPlugin(plugins.SingletonPlugin):
 
     # IResourceController
     def before_resource_delete(self, context, resource, resources):
+        # Set resource in context so it can be used in the after_resource_delete &  `after_dataset_delete` interfaces below
         context['resource'] = resource
 
     def after_resource_delete(self, context, resources):
