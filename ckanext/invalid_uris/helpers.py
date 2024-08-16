@@ -119,6 +119,8 @@ def get_invalid_uris(entity_id):
     u"""
     Get invalid uris for the current package.
     """
+    if not entity_id:
+        return []
     uris = Session.query(InvalidUri).filter(InvalidUri.entity_id == entity_id).all()
 
     return [uri.as_dict() for uri in uris]
