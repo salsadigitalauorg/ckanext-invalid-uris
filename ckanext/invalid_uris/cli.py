@@ -8,13 +8,13 @@ from ckanext.invalid_uris import helpers
 @click.command(u"register-uri-validation-job")
 @click.option(u"-t", u"--type", required=True,
               help=u"""Type of the job.
-              
-                Possible values:  
-                
+
+                Possible values:
+
                 'created' => filter package by created date within last 24h
-                
+
                 'updated' => filter package by updated/modified date within last 24h
-                
+
                 'all' => get all metadata
               """)
 @click.option(u"-p", u"--package_types", required=True,

@@ -1,7 +1,6 @@
 import logging
 
 from ckanext.invalid_uris.model import InvalidUri
-from pprint import pformat
 
 log = logging.getLogger(__name__)
 
