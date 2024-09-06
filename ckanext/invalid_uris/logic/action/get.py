@@ -1,9 +1,7 @@
 import logging
-import ckan.plugins.toolkit as toolkit
 
 from ckanext.invalid_uris.model import InvalidUri
 from ckanext.scheming.helpers import scheming_dataset_schemas
-from pprint import pformat
 
 log = logging.getLogger(__name__)
 

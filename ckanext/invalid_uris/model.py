@@ -5,26 +5,31 @@ from ckan.model import types as _types
 from sqlalchemy import types, Column, Table, func, ForeignKey
 from ckan.model.domain_object import DomainObject
 
-# Define invalid_uri table structure.
-invalid_uri_table = Table(
-    'invalid_uri', meta.metadata,
-    Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
-    Column('entity_type', types.UnicodeText, nullable=False),
-    Column('entity_id', types.UnicodeText, nullable=False),
-    Column('parent_entity_id', types.UnicodeText),
-    Column('field', types.UnicodeText, nullable=False),
-    Column('uri', types.UnicodeText, nullable=False),
-    Column('status_code', types.UnicodeText, nullable=False),
-    Column('reason', types.UnicodeText, nullable=False),
-    Column('date_created', types.DateTime, default=datetime.datetime.utcnow()),
-    Column('date_last_checked', types.DateTime, default=datetime.datetime.utcnow()),
-)
+try:
+    from ckan.plugins.toolkit import BaseModel
+except ImportError:
+    # CKAN <= 2.9
+    from ckan.model.meta import metadata
+    from sqlalchemy.ext.declarative import declarative_base
+
+    BaseModel = declarative_base(metadata=metadata)
 
 
-class InvalidUri(DomainObject):
+class InvalidUri(DomainObject, BaseModel):
     u"""
     An InvalidUri object.
     """
+    __tablename__ = 'invalid_uri'
+    id = Column(types.UnicodeText, primary_key=True, default=_types.make_uuid)
+    entity_type = Column(types.UnicodeText, nullable=False)
+    entity_id = Column(types.UnicodeText, nullable=False)
+    parent_entity_id = Column(types.UnicodeText)
+    field = Column(types.UnicodeText, nullable=False)
+    uri = Column(types.UnicodeText, nullable=False)
+    status_code = Column(types.UnicodeText, nullable=False)
+    reason = Column(types.UnicodeText, nullable=False)
+    date_created = Column(types.DateTime, default=datetime.datetime.utcnow())
+    date_last_checked = Column(types.DateTime, default=datetime.datetime.utcnow())
 
     def __init__(self, entity_type=None, entity_id=None, parent_entity_id=None, field=None, uri=None,
                  status_code=None, reason=None):
@@ -79,6 +84,3 @@ class InvalidUri(DomainObject):
         """
         query = meta.Session.query(cls)
         return query.filter(func.lower(cls.uri) == func.lower(uri)).all()
-
-
-meta.mapper(InvalidUri, invalid_uri_table)
