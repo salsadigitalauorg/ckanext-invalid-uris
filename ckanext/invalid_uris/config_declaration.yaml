@@ -1,0 +1,37 @@
+
+version: 1
+groups:
+  - annotation: ckanext-invalid_uris
+    options:
+      - key: ckanext.invalid_uris.proxy
+        description: The proxy to use for requests
+
+      - key: ckanext.invalid_uris.timeout
+        type: int
+        default: 10
+        description: The timeout for requests
+
+      - key: ckanext.invalid_uris.user_agent
+        default: "ckanext-invalid_uris"
+        description: The user agent to use for requests
+
+      - key: ckanext.invalid_uris.verify_certificate
+        type: bool
+        default: true
+        description: Whether to verify the SSL certificate
+
+      - key: ckanext.invalid_uris.retry_attempts
+        type: int
+        default: 3
+        description: The number of times to retry a request
+      
+      - key: ckanext.invalid_uris.recipient_name
+        default: "Open Data"
+        description: The name of the recipient of the data
+
+      - key: ckanext.invalid_uris.recipient_email
+        description: The email address of the recipient of the data
+
+      - key: ckanext.invalid_uris.domain_whitelist
+        type: list
+        description: A list of domains to allow requests to

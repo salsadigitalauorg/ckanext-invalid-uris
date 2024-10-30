@@ -4,7 +4,6 @@ import ckan.plugins.toolkit as toolkit
 from datetime import datetime
 from ckanext.invalid_uris.model import InvalidUri
 from ckanext.invalid_uris import jobs
-from pprint import pformat
 
 log = logging.getLogger(__name__)
 
