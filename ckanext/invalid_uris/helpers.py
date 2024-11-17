@@ -28,8 +28,9 @@ def valid_uri(uri, retries=0, method='head'):
     timeout = timeout * (retries+1)
     user_agent = config.get('ckanext.invalid_uris.user_agent')
     verify_certificate = toolkit.asbool(config.get('ckanext.invalid_uris.verify_certificate', True))
+    ca_bundle_path = config.get('ckanext.invalid_uris.ca_bundle_certificate_path', True)
     retry_attempts = toolkit.asint(config.get('ckanext.invalid_uris.retry_attempts', 3))
-    
+
     try:
         if proxy:
             proxies = {
@@ -44,7 +45,7 @@ def valid_uri(uri, retries=0, method='head'):
             method=method,
             url=uri,
             headers=headers,
-            verify=verify_certificate,
+            verify=ca_bundle_path if verify_certificate else False,
             timeout=timeout,
             proxies=proxies,
             allow_redirects=True,

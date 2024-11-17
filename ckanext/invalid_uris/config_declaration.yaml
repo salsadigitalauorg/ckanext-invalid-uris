@@ -1,4 +1,3 @@
-
 version: 1
 groups:
   - annotation: ckanext-invalid_uris
@@ -20,11 +19,14 @@ groups:
         default: true
         description: Whether to verify the SSL certificate
 
+      - key: ckanext.invalid_uris.ca_bundle_certificate_path
+        description: The path to the CA bundle certificate
+
       - key: ckanext.invalid_uris.retry_attempts
         type: int
         default: 3
         description: The number of times to retry a request
-      
+
       - key: ckanext.invalid_uris.recipient_name
         default: "Open Data"
         description: The name of the recipient of the data
