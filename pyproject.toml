@@ -10,7 +10,7 @@ maintainers = [
 	{name = "Konstantin Sivakov", email = "konstantin.sivakov@salsa.digital"},
 	{name = "Awang Setyawan", email = "awang.setyawan@salsa.digital"},
 	]
-license = "AGPL-3.0"
+license = { text = "AGPL-3.0" }
 readme = "README.md"
 classifiers = [
 	"Development Status :: 5 - Production/Stable",
