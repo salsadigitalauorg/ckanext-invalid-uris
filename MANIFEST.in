@@ -3,3 +3,4 @@ include LICENSE
 include requirements.txt
 recursive-include ckanext/invalid_uris *.html *.json *.js *.less *.css *.mo *.yaml
 recursive-include ckanext/invalid_uris/migration *.py *.ini *.mako
+recursive-include ckanext/invalid_uris/public *.*
