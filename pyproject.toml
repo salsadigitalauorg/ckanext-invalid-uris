@@ -1,0 +1,41 @@
+[project]
+name = "ckanext-invalid-uris"
+version = "3.0.1"
+description = "CKAN extension for QDES"
+authors = [
+	{name = "Salsa Digital", email = "developers@salsa.digital"},
+	]
+maintainers = [
+	{name = "Mark Calvert", email = "mark.calvert@salsa.digital"},
+	{name = "Konstantin Sivakov", email = "konstantin.sivakov@salsa.digital"},
+	{name = "Awang Setyawan", email = "awang.setyawan@salsa.digital"},
+	]
+license = { text = "AGPL-3.0" }
+readme = "README.md"
+classifiers = [
+	"Development Status :: 5 - Production/Stable",
+	"Framework :: CKAN",
+	"Intended Audience :: Developers",
+	"License :: OSI Approved :: GNU Affero General Public License v3",
+	"Programming Language :: Python :: 3.9",
+	"Programming Language :: Python :: 3.10",
+	"Programming Language :: Python :: 3.11",
+	"Programming Language :: Python :: 3.12",
+	"Topic :: Internet :: WWW/HTTP",
+	"Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+	"Topic :: Software Development :: Libraries :: Python Modules",
+	]
+keywords = ["ckan", "extension", "invalid-uris"]
+
+dependencies = []
+
+[project.urls]
+Repository = "https://github.com/salsadigitalauorg/ckanext-invalid-uris"
+
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project.entry-points."ckan.plugins"]
+invalid_uris="ckanext.invalid_uris.plugin:InvalidUrisPlugin"
