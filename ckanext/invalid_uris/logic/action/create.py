@@ -30,7 +30,7 @@ def invalid_uri(context, data):
 
             # Update date_last_checked.
             setattr(invalid_uri_data, 'date_last_checked',
-                    datetime.datetime.now(datetime.UTC))
+                    datetime.datetime.now(datetime.timezone.utc))
 
             # Save the updated data.
             invalid_uri_data.save()
