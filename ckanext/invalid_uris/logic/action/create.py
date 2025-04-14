@@ -1,7 +1,7 @@
 import logging
 import ckan.plugins.toolkit as toolkit
 
-from datetime import datetime
+import datetime
 from ckanext.invalid_uris.model import InvalidUri
 from ckanext.invalid_uris import jobs
 
@@ -29,7 +29,8 @@ def invalid_uri(context, data):
                 setattr(invalid_uri_data, key, data.get(key))
 
             # Update date_last_checked.
-            setattr(invalid_uri_data, 'date_last_checked', datetime.utcnow())
+            setattr(invalid_uri_data, 'date_last_checked',
+                    datetime.datetime.now(datetime.timezone.utc))
 
             # Save the updated data.
             invalid_uri_data.save()
