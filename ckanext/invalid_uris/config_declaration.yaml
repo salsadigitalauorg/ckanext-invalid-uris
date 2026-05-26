@@ -37,3 +37,6 @@ groups:
       - key: ckanext.invalid_uris.domain_whitelist
         type: list
         description: A list of domains to allow requests to
+
+      - key: ckanext.invalid_uris.custom_headers
+        description: Custom HTTP headers to include in invalid URI validation requests.
