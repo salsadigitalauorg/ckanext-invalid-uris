@@ -21,7 +21,7 @@ def valid_uri(uri, retries=0, method='head'):
     response = None
     result = None
     proxies = None
-    headers = None
+    headers = {}
     proxy = config.get('ckanext.invalid_uris.proxy')
     timeout = toolkit.asint(config.get('ckanext.invalid_uris.timeout', 10))
     # Increase timeout for each retry attempt.
@@ -41,6 +41,12 @@ def valid_uri(uri, retries=0, method='head'):
             headers = {
                 "User-Agent": user_agent
             }
+
+        headers.update(get_custom_headers())
+
+        if not headers:
+            headers = None
+
         response = requests.request(
             method=method,
             url=uri,
@@ -146,3 +152,49 @@ def get_list_of_invalid_uris():
             }
 
     return entities
+
+
+def get_custom_headers():
+    """
+    Return custom HTTP headers configured for invalid URI requests.
+
+    Expected config format:
+
+        ckanext.invalid_uris.custom_headers = {"Header-Name": "Header value"}
+
+    Invalid or missing config returns an empty dict so URI validation can continue.
+    """
+    custom_headers_config = config.get('ckanext.invalid_uris.custom_headers')
+
+    if not custom_headers_config:
+        return {}
+
+    try:
+        custom_headers = json.loads(custom_headers_config)
+    except (TypeError, ValueError) as e:
+        log.warning(
+            'Invalid ckanext.invalid_uris.custom_headers config. '
+            'Expected a JSON object. Error: {}'.format(e)
+        )
+        return {}
+
+    if not isinstance(custom_headers, dict):
+        log.warning(
+            'Invalid ckanext.invalid_uris.custom_headers config. '
+            'Expected a JSON object.'
+        )
+        return {}
+
+    headers = {}
+
+    for header_name, header_value in custom_headers.items():
+        if not header_name or header_value is None:
+            log.warning(
+                'Skipping invalid custom header from '
+                'ckanext.invalid_uris.custom_headers: {}'.format(header_name)
+            )
+            continue
+
+        headers[str(header_name)] = str(header_value)
+
+    return headers
