@@ -33,3 +33,24 @@ example to validate created package within last 24h.
 `ckan -c /app/ckan/default/ckan.ini register-uri-validation-job -t 'created' -p 'dataset dataservice' -v 'qdes_uri_validator'`
 
 To execute job manually: `ckan -c /app/ckan/default/ckan.ini jobs worker`
+
+# Custom HTTP headers
+
+The URI validation request can include custom HTTP headers by setting:
+
+```ini
+ckanext.invalid_uris.custom_headers = {"Header-Name": "Header value"}
+```
+
+For example, to allow an upstream service such as Cloudflare to identify and allow URI validation requests:
+
+```ini
+ckanext.invalid_uris.custom_headers = {"X-detsi-cloudflare-bypass": "abcdefg"}
+```
+
+Multiple headers are supported:
+
+```ini
+ckanext.invalid_uris.custom_headers = {"Header-One": "value-one", "Header-Two": "value-two"}
+```
+
